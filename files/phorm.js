@@ -36,20 +36,22 @@ function DarkenIt(cur, t) {
 function toggleInfo(wut) {
 	if ((!wut) || (wut == ''))
 		wut = dg('hin').innerHTML;
-	if (wut == 'Show') {
-		dg('hin').innerHTML = 'Hide&nbsp;';
+	if (wut == '显示') {
+		dg('hin').innerHTML = '隐藏';
 		dg('photoBoxes').style.display = 'block';
 		dg('theImage').style.cssFloat = 'left';
 		dg('theImage').style.styleFloat = 'left';
-		dg('theImage').style.marginRight = '15px';
+		dg('theImage').style.cssWidth = '710px';
+		dg('theImage').style.marginRight = '0px';
 		setCookie('hideinfo', 'false');
 	}
 	else {
-		dg('hin').innerHTML = 'Show';
+		dg('hin').innerHTML = '显示';
 		dg('photoBoxes').style.display = 'none';
 		dg('theImage').style.cssFloat = 'none';
 		dg('theImage').style.styleFloat = 'none';
-		dg('theImage').style.marginRight = '55px';
+		dg('theImage').style.cssWidth = '950px';
+		dg('theImage').style.marginRight = '0px';
 		setCookie('hideinfo', 'true');
 	}
 }
@@ -69,7 +71,7 @@ function setCookie(key, val) {
 }
 
 function reToggleInfo() {
-	toggleInfo((cookieVal('hideinfo') != 'true')?'Show':'Hide');
+	toggleInfo((cookieVal('hideinfo') != 'true')?'显示':'隐藏');
 }
 
 function rand(x) {
@@ -109,7 +111,7 @@ function alertContents(http_request) {
 				AjaxVal = AjaxVal.substr(6, AjaxVal.length-13); // to clear <ajax></ajax> tag which was added to save XMLity
 				AjaxValRead = false; // to avoid duplicate the reading of the content
 				if (AjaxVal.substr(0, 4) == 'Done') {
-					dg('rateStatus').innerHTML = 'Your rating saved!';
+					dg('rateStatus').innerHTML = '评分成功！';
 					dg('sumRate').innerHTML = AjaxVal.substr(4, AjaxVal.length-1);
 				}
 				if (AjaxVal.substr(0, 6) == 'FakeWV') {
@@ -147,11 +149,11 @@ function makeRequest(url) {
 
 function SaveRating(pid, rate) {
 	if (rate == 0) {
-		alert('Select your rate among the other options!');
+		alert('必须选一个评分！');
 		return;
 	}
 	isAjaxing = true;
-	dg('rateStatus').innerHTML = 'Saving your rate ';
+	dg('rateStatus').innerHTML = '评分成功';
 	updateIndic();
 	makeRequest("./?cmd=rate&p="+pid+"&rate="+rate+"&r="+Math.round(Math.random()*100000)); // to avoid unwanted caching
 }
@@ -225,7 +227,7 @@ function toggle(w, c, t) {
 	var block = (dg(w).style.display == 'block');
 	dg(w).style.display = (block)?'none':'block';
 	dg(c).style.display = (!block)?'none':'block';
-	t.innerHTML = (!block)?"Hide'em again":"Show'em All";
+	t.innerHTML = (!block)?"再次隐藏":"显示全部";
 }
 
 function ss_next() {
@@ -279,7 +281,7 @@ function ss_loaddone() {
 
 function ss_playpause() {
 	ss_play = !ss_play;
-	dg('ss_playpause_link').innerHTML = (ss_play)?'Pause it':'Play it';
+	dg('ss_playpause_link').innerHTML = (ss_play)?'暂停':'播放';
 	dg('ss_playpause_link2').innerHTML = dg('ss_playpause_link').innerHTML;
 	ss_run();
 }
@@ -292,7 +294,7 @@ function src_smaller(x) {
 
 function ss_toggleSmaller() {
 	ss_smaller = !ss_smaller;
-	dg('ss_smaller_link').innerHTML = (ss_smaller)?'Larger Size':'Smaller Size';
+	dg('ss_smaller_link').innerHTML = (ss_smaller)?'大尺寸':'小尺寸';
 	dg('ss_photo').src = ss_smaller?src_smaller(dg('ss_photo').src):ss_src[ss_cur];
 }
 

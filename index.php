@@ -123,11 +123,11 @@
 	$cmd = (isset($_GET['cmd']))?$_GET['cmd']:(isset($_POST['cmd'])?$_POST['cmd']:'');
 
 	if (($p != -1) && !isset($photos[$p]))
-		$alert_query = "The requested photo [pid = $p] does not exist!";
+		$alert_query = "图片 [pid = $p] 不存在噻";
 	if (($c != -1) && !isset($categs[$c]))
-		$alert_query = "The requested category [cid = $c] does not exist!";
+		$alert_query = "目录 [cid = $c] 不存在噻";
 	if (($s != -1) && !isset($stories[$s]))
-		$alert_query = "The requested story [sid = $s] does not exist!";
+		$alert_query = "故事 [sid = $s] 不存在噻";
 
 	$bad_query = (strlen($alert_query) > 0);
 	if ($bad_query)
@@ -142,13 +142,13 @@
 	if (strlen($cmd) && !$bad_query) {
 		if ($isAnAddCmnt) {
 			if ($byAdmin && !$isAdmin)
-				$alert_msg = "Only Administrator can leave comment as <b>Admin</b>";
+				$alert_msg = "只有管理员能以管理员模式留言";
 			else if (!$byAdmin && !isset($_POST['name']))
-				$alert_msg = "Name field can not be left blank.";
+				$alert_msg = "姓名不能为空";
 			else if (!isset($_POST['txt']) || (strlen($_POST['txt']) == 0))
-				$alert_msg = "Text Body can not be left empty.";
+				$alert_msg = "评论内容不能为空";
 			else if (bannedIP($_SERVER['REMOTE_ADDR']))
-				$alert_msg = "Your IP is locked on this PhotoGallery. Contact Author!";
+				$alert_msg = "你的IP被锁定了，请联系管理员";
 			else if (!$isAdmin && isset($basis['wvw']) && isset($_POST['wvw']) &&
 					 hasWV() && (strcasecmp($_POST['wvw'], $basis['wvw']) != 0)) {
 					$alert_msg = "Incorrect word verification entry!";
@@ -156,7 +156,7 @@
 						$alert_msg .= " You should have entered \"".$basis['wvw']."\". Try again!"; #\"".$_POST['wvw']."\"";
 				}
 			else if (!$byAdmin && !$isAdmin && isset($_POST['name']) && (strcmp($_POST['name'], "ADMIN") == 0))
-				$alert_msg = "Only real Administrator, can leave comments as <b>ADMIN</b>!";
+				$alert_msg = "只有真的管理员能以管理员模式留言";
 			if (strlen($alert_msg) == 0) { // yet has chance to be added!
 				if ($byAdmin)
 					$_POST['name'] = "ADMIN";
@@ -171,7 +171,7 @@
 				if (strlen($alert_msg) == 0) {
 					$photo = getAllPhotoInfo($p, "./");
 					if (strcmp($photo['getcmnts'], 'yes') != 0)
-						$alert_msg = "This Photo doesn't get Comment!";
+						$alert_msg = "图片没有评论";
 					else {
 						if (isset($_POST['date']) && ($_POST['date']))
 							$date = "00-01-01 00:00";
@@ -182,7 +182,7 @@
 									'date' => $date, 'txt' => htmlspecialchars($_POST['txt'], ENT_COMPAT, 'UTF-8'),
 									'ip' => $_SERVER['REMOTE_ADDR'], 'owner' => "p".$_GET['p'],
 									'reply' => $reply);
-						$ok_msg = "Comment added successfully";
+						$ok_msg = "添加评论成功";
 						save_container('comments', 'Comment', './data/comments.xml');
 					}
 				}
@@ -202,7 +202,7 @@
 									'date' => $date, 'txt' => htmlspecialchars($_POST['txt'], ENT_COMPAT, 'UTF-8'),
 									'ip' => $_SERVER['REMOTE_ADDR'], 'owner' => "s".$_GET['s'],
 									'reply' => $reply);
-						$ok_msg = "Comment added successfully.";
+						$ok_msg = "添加评论成功";
 						save_container('comments', 'Comment', './data/comments.xml');
 					}
 				}
@@ -216,7 +216,7 @@
 				break;
 			case 'login':
 				if (!isset($_POST['pass']))
-					$alert_msg = "Password field should not be blank.";
+					$alert_msg = "密码不能为空";
 				else {
 					$carr = array();
 					$let = ($c != -1)?"c":"s";
@@ -233,7 +233,7 @@
 				break;
 			case 'rate':
 				if ($p == -1)
-					$alert_msg = "PhotoID can not be left blank.";
+					$alert_msg = "图片ID不能为空";
 				else {
 					$urrate = (isset($_COOKIE['rate_'.$p])?$_COOKIE['rate_'.$p]:0);
 					$rating = array();
@@ -244,14 +244,15 @@
 					$rating[1] += ($urrate == 0);
 					$photos[$p] = sprintf("%d %d/%d", $hits, $rating[0], $rating[1]);
 					$ok_rate = true;
-					$ok_msg = "Your rating \"{$_GET['rate']}\" for this photo saved successfully!".
-						(($urrate==0)?"":" (and your previous rating ($urrate) dismissed.)");
+					$ok_msg = "你的新评分 \"{$_GET['rate']}\" 生效，".
+						(($urrate==0)?"":" (你以前的评分 ($urrate) 删除)");
 					save_container('photos', 'Photo', './data/photos.xml');
 					setcookie('rate_'.$p, $_GET['rate'], time()+3600*24*365);
 					$_COOKIE['rate_'.$p] = $_GET['rate'];
 					$rate = 0;
 					@$rate = round($rating[0]/$rating[1], 2);
-					$rate .= " by ".$rating[1];
+					//$rate .= " by ".$rating[1];
+					$rate = $rating[1]."人评分，平均分：".$rate;
 					echo "<ajax>Done $rate</ajax>";
 					die();
 				}
@@ -267,15 +268,15 @@
 				break;
 			case 'delcmnt':
 				if (!$isAdmin)
-					$alert_msg = "Only Administrator can delete comments!";
+					$alert_msg = "只有管理员才能删除评论";
 				else if (!isset($_GET['cmntid']))
-					$alert_msg = "CommentId not posted.";
+					$alert_msg = "没找到评论ID";
 				else {
 					$cmntid = (int)$_GET['cmntid'];
 					if (!isset($comments[$cmntid]))
-						$alert_msg = "Comment #$cmntid not found.";
+						$alert_msg = "没找到 #$cmntid 评论";
 					else {
-						$ok_msg = "Comment #$cmntid by \"{$comments[$cmntid]['name']}\" deleted successfully!";
+						$ok_msg = "评论 #$cmntid 被 \"{$comments[$cmntid]['name']}\" 成功删除";
 						unset($comments[$cmntid]);
 						save_container('comments', 'Comment', './data/comments.xml');
 					}
@@ -302,7 +303,7 @@
 			echo "document.write('<a href=\"$add?p=$j\"><img src=\"$add/$img\" /></a>');";
 		}
 		else
-			echo "document.write('<a href=\"$add\">The photo #$j does not exist</a>');";
+			echo "document.write('<a href=\"$add\">图片 #$j 不存在噻！</a>');";
 		die();
 	}
 
@@ -318,7 +319,7 @@
 			$s = "<a href=\\\"$add?p=$jj\\\"><img src=\\\"$add/$img\\\" /></a>";
 		}
 		else
-			$s = "The photo #$jj does not exist!";
+			$s = "图片 #$jj 不存在噻！";
 		$s .= "\n";
 
 		echo "<?php\n"; #"
@@ -369,7 +370,7 @@
 			$r = array_keys($r);
 			$backend = ".";
 			$theend = ".?feat=slideshow";
-			$stitle = "<a href=\"$theend\">\"Recent Photos\"</a>";
+			$stitle = "<a href=\"$theend\">\"最新图片\"</a>";
 		}
 
 		while (list($key, $val) = each($r)) {
@@ -404,7 +405,8 @@
 					$r[$key]['src'] = PHOTO_PATH.getImageFileName($key, 9);
 
 				$dates = sscanf($r[$key]['datetake'], "%d/%d/%d");
-				$r[$key]['date'] = date("l, M jS \o\f Y", mktime(0, 0, 0, $dates[1], $dates[2], $dates[0]));
+				//$r[$key]['date'] = date("l, M jS \o\f Y", mktime(0, 0, 0, $dates[1], $dates[2], $dates[0]));
+				$r[$key]['date'] = date("Y-m-d", mktime(0, 0, 0, $dates[1], $dates[2], $dates[0]));
 			}
 			reset($r);
 
@@ -413,18 +415,20 @@
 		#echo count($r)."~~~~~~~~~~~~<br />\n";
 		#print_r(array_keys($r));
 
-		$backend .= "&n=$n";
-		if ($ns > 0)
+		
+		if ($ns > 0) {
+			$backend .= "&n=$n";
 			$backend .= "&ns=$ns";
+		}
 
 ?>
 	<div class="partmain" id="slideShow">
 		<div class="titlepart" style="letter-spacing: 2px; padding-bottom: 1em; margin-bottom: 0px;">
-			<span class="leaveReply" style="padding-right: 5px;">[ <a href="<?php echo $backend; ?>">Back</a> ]</span>
-			<span class="leaveReply" style="padding-right: 5px;">[ <a id="ss_smaller_link" class="q" onclick="javascript:ss_toggleSmaller();">Smaller Size</a> ]</span>
+			<span class="leaveReply" style="padding-right: 5px;">[ <a href="<?php echo $backend; ?>">返回</a> ]</span>
+			<span class="leaveReply" style="padding-right: 5px;">[ <a id="ss_smaller_link" class="q" onclick="javascript:ss_toggleSmaller();">小尺寸</a> ]</span>
 
 			<span class="reddot" style="padding: 0px 10px;">&#149;</span>
-			SlideShow of <?php echo $stitle; ?>  :: Slide
+			<?php echo $stitle; ?>的幻灯片 :: 播放
 			<span id="ss_n">1</span> of <?php echo count($r); ?>
 			<div id="headSlideshow">
 				<span class="dt">&#147;</span><a
@@ -433,51 +437,50 @@
 					class="dt">&#148;</span>
 					<br />
 			</div>
+		</div><!-- end titlepart -->
+
+		<div style="margin: 30px auto 5px; width: 90%">
+			<table style="width: 100%"><tr>
+				<td style="text-align: left" width="25%">
+					[ <a class="q" onclick="javascript:ss_prev();">前一张</a> ]
+				</td><td style="text-align: center" width="50%">
+					[ <a class="q" id="ss_playpause_link" onclick="javascript:ss_playpause();">暂停</a> ]
+					&nbsp; &nbsp;
+					<select class="rate" id="ss_refresh" style="position: relative; top: 6px;">
+						<option value="1000">&nbsp;1 秒</option>
+						<option value="2000">&nbsp;2 秒</option>
+						<option value="5000">&nbsp;5 秒</option>
+						<option value="10000" selected="selected">10 秒</option>
+						<option value="20000">20 秒</option>
+						<option value="30000">30 秒</option>
+						<option value="60000">60 秒</option>
+					</select>
+				</td><td style="text-align: right" width="25%">
+					[ <a class="q" onclick="javascript:ss_next();">后一张</a> ]
+				</td>
+			</tr></table>
 		</div>
 
-			<div style="margin: 0px auto 5px; width: 90%">
-				<table style="width: 100%"><tr>
-					<td style="text-align: left" width="25%">
-						[ <a class="q" onclick="javascript:ss_prev();">Previous</a> ]
-					</td><td style="text-align: center" width="50%">
-						[ <a class="q" id="ss_playpause_link" onclick="javascript:ss_playpause();">Pause it</a> ]
-						&nbsp; &nbsp;
-						<select class="rate" id="ss_refresh" style="position: relative; top: 6px;">
-							<option value="1000">&nbsp;1 Sec</option>
-							<option value="2000">&nbsp;2 Sec</option>
-							<option value="5000">&nbsp;5 Sec</option>
-							<option value="10000" selected="selected">10 Sec</option>
-							<option value="20000">20 Sec</option>
-							<option value="30000">30 Sec</option>
-							<option value="60000">60 Sec</option>
-						</select>
-					</td><td style="text-align: right" width="25%">
-						[ <a class="q" onclick="javascript:ss_next();">Next</a> ]
-					</td>
-				</tr></table>
-			</div>
-
-
-		<div style="text-align: center; margin: 15px 0px 10px;">
+		<div style="text-align: center; margin: 10px 0px;">
 			<a id="ss_link2" href="?p=<?php echo key($r); ?>" style="display:inline;">
-				<img id="ss_photo" src="<?php echo $r0['src']; ?>" onload="javscript:ss_loaddone();" />
+				<img id="ss_photo" src="<?php echo $r0['src']; ?>" onload="javscript:ss_loaddone();" alt="" />
 			</a>
 			<div id="ss_theend" style="display: none; margin: 10em 0em;" class="">
-				<b>This is the end of SlideShow <?php if (strlen($theend)) echo " to last ".($ns+$threshold)." photos"; ?>.</b><br /><br />
+				<b>幻灯片结束 <?php if (strlen($theend)) echo " to last ".($ns+$threshold)." photos"; ?>.</b><br /><br />
 <?php if (strlen($theend)) echo "[ <a class=\"q\" href=\"$theend\">Check Laters &#133;</a> ]"; ?>
 			</div>
 			<div class="divClear"></div>
 		</div>
 
-		<div style="margin: 1em auto 5px; width: 90%">
+		<div style="margin: 10px auto; width: 90%">
 			<table style="width: 100%"><tr>
 				<td style="text-align: left" width="25%">
-					[ <a class="q"onclick="javascript:ss_prev();">Previous</a> ]
+					[ <a class="q"onclick="javascript:ss_prev();">前一张</a> ]
 				</td><td style="text-align: center" width="50%">
-					[ <a class="q" id="ss_playpause_link2" onclick="javascript:ss_playpause();">Pause it</a> ]
+					[ <a class="q" id="ss_playpause_link2" onclick="javascript:ss_playpause();">暂停</a> ]
 					&nbsp; &nbsp;
 				</td><td style="text-align: right" width="25%">
-					[ <a class="q" onclick="javascript:ss_next();">Next</a> ]
+					[ <a class="q" onclick="javascript:ss_next();">后一张</a> ]
 				</td>
 			</tr></table>
 		</div>
@@ -488,7 +491,7 @@
 			<span id="ss_desc"><?php echo nl2br($r0['desc']); ?></span>
 <?php
 
-			echo '<script language="javascript" type="text/javascript">';
+			echo "<script type=\"text/javascript\">\n";
 				echo "ss_pid 	= new Array();\n";
 				echo "ss_ttl 	= new Array();\n";
 				echo "ss_date 	= new Array();\n";
@@ -503,11 +506,12 @@
 						."\t ss_desc[$n] = '".str_replace(array("\n", "'"), array('', '&#039;'), nl2br($val['desc']))."'; \n";
 				echo "\t".'ss_update();'."\n";
 				echo "\t".'setTimeout("ss_slideshow()", 10000);'."\n";
-			echo '</script>';
+			echo '</script>'."\n";
 
 ?>
-		</div>
+		</div><!-- end midInfo -->
 		<div class="end" style="padding-top: 0px"></div>
+	</div><!-- end maincol -->
 <?php
 		}
 
@@ -542,7 +546,7 @@
 			}
 			$hr = "<center><div class=\"hr\"></div></center>";
 			$dd = "<span class=\"darkdot\">&#149;</span>";
-			$spc = "\t\t<div class=\"spc\"> </div>\n";
+			$spc = "\t\t\t<div class=\"spc\"> </div>\n";
 			$imgAddress = PHOTO_PATH.getImageFileName($p, 0);
 			if (!file_exists($imgAddress))
 				$imgAddress = PHOTO_PATH.getImageFileName($p, 9);
@@ -555,25 +559,25 @@
 				write_headers("\"$name\" of ".$basis['pgname']);
 			write_top();
 
-			echo "\t<div class=\"pvTitle\">"
-					."<span class=\"pvTitleInfo\">"
+			echo "\t<div class=\"pvTitle\">\n"
+					."\t\t<span class=\"pvTitleInfo\">"
 						.($isAdmin?"[<a target=\"_top\" "
-						."href=\"admin.php?page=photos&cmd=del&pid=$p\" onclick=\"return confirmDelete('Photo #$p')\" title=\"Delete this photo in the Administration Area\"> Delete </a>]&nbsp; &nbsp;":"")
+						."href=\"admin.php?page=photos&cmd=del&pid=$p\" onclick=\"return confirmDelete('Photo #$p')\" title=\"删除\"> 删除 </a>]&nbsp;":"")
 						.($isAdmin?"[<a target=\"_top\" "
-						."href=\"admin.php?page=photos&cmd=doEdt&pid=$p\" title=\"Edit this photo in the Administration Area\"> Edit </a>]&nbsp; &nbsp;":"")
-						."[<a target=\"_top\" href=\"javascript:toggleInfo();\" title=\"Show/Hide additional info and de/centralize the photo\">"
-							."  <span id=\"hin\">Hide&nbsp;</span> info "
-						."</a>]&nbsp; &nbsp;"
-						."[<a target=\"_top\" href=\".?c={$photo['categ']}\" title=\"Navigate to container Category ({$categs[$photo['categ']]['name']})\"> Up </a>]"
+						."href=\"admin.php?page=photos&cmd=doEdt&pid=$p\" title=\"编辑\"> 编辑 </a>]&nbsp;":"")
+						."[<a target=\"_top\" href=\"javascript:toggleInfo();\" title=\"显示/隐藏\">"
+							."  <span id=\"hin\">隐藏</span>信息 "
+						."</a>]&nbsp;"
+						."[<a target=\"_top\" href=\".?c={$photo['categ']}\" title=\"浏览目录： ({$categs[$photo['categ']]['name']})\"> 目录 </a>]"
 					."</span>\n";
 			if (strlen($name))
-				echo "<span class=\"dt\">&#147;</span> "
-					."<span class=\"titleName\"><a class=\"oneImageTitle\" title=\"Refresh this page\" href=\".?p=$p\">$name</a></span> "
+				echo "\t\t<span class=\"dt\">&#147;</span> "
+					."<span class=\"titleName\"><a class=\"oneImageTitle\" title=\"刷新此页\" href=\".?p=$p\">$name</a></span> "
 					."<span class=\"dt\">&#148;</span>\n";
 			else
 				echo "&nbsp;";
-			echo "</div>\n";
-			$photoDesc = (strlen($photo['desc']) > 0)?nl2br($photo['desc']):"No Descripton.";
+			echo "\t</div><!-- end pvTitle -->\n";
+			$photoDesc = (strlen($photo['desc']) > 0)?nl2br($photo['desc']):"没有描述。";
 			$photoInfo = nl2br($photo['photoinfo']);
 			$tuple = (strlen($photo['photoinfo']));
 			global $hasgd;
@@ -592,60 +596,58 @@
 			}
 			echo "\t<div class=\"wholePhoto\">\n";
 			echo "\t\t<div class=\"photoTheImg\" >\n"
-					.($haslarger?"<a title=\"Click to view original size $largerInfo\" href=\"$larger\">":"")
-					."<div id=\"theImage\" style=\"float: left;\" >"
-						."<img src=\"$imgAddress\" $widthHeight alt=\"{$photo['name']}\"  />\n"
-						.($haslarger?"</a>":"")
-						."<div class=\"divClear\" style=\"width: 300px;\"></div>"
-					."</div>"
-				."</div>\n";
+					."\t\t\t<div id=\"theImage\" >\n"
+						.($haslarger?"\t\t\t<a title=\"Click to view original size $largerInfo\" href=\"$larger\">":"")
+						."<img src=\"$imgAddress\" $widthHeight alt=\"{$photo['name']}\"  />"
+						.($haslarger?"</a>\n":"\n")
+					."\t\t\t</div>\n"
+				."\t\t</div><!-- end photoTheImg -->\n";
 			echo "\t\t<div id=\"photoBoxes\">\n";
-			echo "\t\t<div class=\"photoBox\">\n"
-					."<span class=\"titlePhotoBox\">Photo Notes "
-					."</span><br />"
+			echo "\t\t\t<fieldset class=\"photoBox\">\n"
+					."\t\t\t<legend class=\"titlePhotoBox\">图片描述</legend>\n"
 					/* .$dd */ .$photoDesc
 					.($tuple?$hr /* .$dd */:"")
 					.$photoInfo
-					."</div>\n";
-			echo "\t\t<div class=\"photoBox\">\n";
-				echo "\t\t\t<span class=\"titlePhotoBox\">Further Details</span><br />\n";
+					."\n\t\t\t</fieldset>\n";
+			echo "\t\t\t<fieldset class=\"photoBox\">\n";
+				echo "\t\t\t<legend class=\"titlePhotoBox\">详细信息</legend>\n";
 				$dates = sscanf($photo['dateadd'], "%d/%d/%d %d:%d");
-				$mtime = date("M jS y, h:i", mktime($dates[3], $dates[4], 0, $dates[1], $dates[2], $dates[0]));
+				$mtime = $photo['dateadd'];//date("M jS y, h:i", mktime($dates[3], $dates[4], 0, $dates[1], $dates[2], $dates[0]));
 
 
-				echo "\t\t\t$dd Date added: $mtime<br />\n";
+				echo "\t\t\t$dd 添加时间: $mtime<br />\n";
 				if (strncmp($photo['dateadd'], $photo['datetake'], 10) != 0) {
 					$dates = sscanf($photo['datetake'], "%d/%d/%d");
-					$mtime = date("D, M jS \o\f y", mktime(0, 0, 0, $dates[1], $dates[2], $dates[0]));
-					echo "\t\t\t$dd Date taken: $mtime<br />\n";
+					$mtime = $photo['datetake'];//date("D, M jS \o\f y", mktime(0, 0, 0, $dates[1], $dates[2], $dates[0]));
+					echo "\t\t\t$dd 拍摄时间: $mtime<br />\n";
 				}
 				echo $spc;
-				echo "\t\t\t$dd Photo ID: <a target=\"_top\" href=\".?p=$p\">$p</a><br />\n";
-				echo "\t\t\t$dd Category: <a href=\".?c={$photo['categ']}\">{$categs[$photo['categ']]['name']}</a><br />\n";
-				echo "\t\t\t$dd Story: <a href=\".?s={$photo['story']}\">{$stories[$photo['story']]['name']}</a><br />\n";
+				echo "\t\t\t$dd 图片ID: <a target=\"_top\" href=\".?p=$p\">$p</a><br />\n";
+				echo "\t\t\t$dd 目录: <a href=\".?c={$photo['categ']}\">{$categs[$photo['categ']]['name']}</a><br />\n";
+				echo "\t\t\t$dd 标签: <a href=\".?s={$photo['story']}\">{$stories[$photo['story']]['name']}</a><br />\n";
 				echo $spc;
 				if (file_exists(PHOTO_PATH.getImageFileName($p, '9')) ||
 					file_exists(PHOTO_PATH.getImageFileName($p, '0')))
-					echo "\t\t\t$dd Other Sizes: "
-							.($haslarger?"<a href=\"".thumb_just_img($p, 9, "./")."\" title=\"Photo $p $largerInfo\">Original</a>, \n":"")
-							."<a href=\"".thumb_just_img($p, 1, "./")."\" title=\"width: 240px\">BlogSize</a>\n"
+					echo "\t\t\t$dd 其他尺寸: "
+							.($haslarger?"<a href=\"".thumb_just_img($p, 9, "./")."\" title=\"Photo $p $largerInfo\">原图</a>, ":"")
+							."<a href=\"".thumb_just_img($p, 1, "./")."\" title=\"width: 240px\">Blog尺寸</a>"
 							."<br />\n";
-			echo "\t\t</div>\n ";
-			echo "\t\t<div class=\"photoBox\" style=\"line-height: 150%\">\n";
-				echo "\t\t\t<span class=\"titlePhotoBox\">Photo Statistics</span><br />\n";
+			echo "\t\t\t</fieldset>\n ";
+			echo "\t\t\t<fieldset class=\"photoBox\">\n";
+				echo "\t\t\t<legend class=\"titlePhotoBox\">图片统计</legend>\n";
 				$rating = array();
 				$rating = explode(" ", $photos[$p]);
-				echo "\t\t\t$dd Hits: $rating[0]<br />\n";
+				echo "\t\t\t$dd 点击: $rating[0]<br />\n";
 
 				if (isset($curLastVisit[2]))
-					echo "\t\t\t$dd Last Visit: ".SecsToText(-1*below_GetRecency($curLastVisit))."<br />\n";
+					echo "\t\t\t$dd 最后: ".SecsToText(-1*below_GetRecency($curLastVisit))."<br />\n";
 
 				$rate = 0;
 				@eval("@\$rate = ".$rating[1].";");
 				$rate = round($rate, 2);
 				$rating = explode("/", $rating[1]);
-				echo "\t\t\t$dd Rated <span id=\"sumRate\">$rate by {$rating[1]}</span> persons<br />\n";
-				$status = (isset($_COOKIE['rate_'.$p])?'Modify your rating':'Rate now');
+				echo "\t\t\t$dd <span id=\"sumRate\">{$rating[1]}人投票{$rate}次</span><br />\n";
+				$status = (isset($_COOKIE['rate_'.$p])?'修改你的投票':'现在投票');
 ?>
 				<div>
 					<noscript>
@@ -657,22 +659,21 @@
 					</span>
 					<span id="indicator" class="dot" style="padding: 0px; color: #454; font-size: 1em;"></span>
 				</div>
-				<span style="margin-left: 7px;"></span>
 				<select name="rate" class="rate" id="rateSelect" onchange="javascript:SaveRating(<?php echo $p; ?>, this.value);">
 <?php
 				$urrate = (isset($_COOKIE['rate_'.$p])?$_COOKIE['rate_'.$p]:0);
-				$rname = array("Select Your Rate","Damn it!", "I dislike it!", "Umm...", "Nice at all!", "Excellent!");
+				$rname = array("选择评分","讨厌", "不喜欢", "一般", "很好！", "非常好！");
 				for ($i=0; $i<=5; $i++)
 					echo "\t\t\t\t\t<option value=\"$i\"".(($i == $urrate)?" selected=\"selected\"":"").">".(($i>0)?"$i: ":"")."{$rname[$i]}</option>\n";
 ?>
 				</select>
-			</div>
-			</div>
-			<script language="javascript" type="text/javascript">
-				reToggleInfo();
-			</script>
+			</fieldset>
+		</div><!-- end photoBoxes -->
+		<script language="javascript" type="text/javascript">
+			reToggleInfo();
+		</script>
 		<div class="divClear"></div>
-		</div>
+		</div><!-- end wholePhoto -->
 		<br />
 <?php
 			writeNextz($p);
@@ -689,27 +690,27 @@
 	else {
 	$t = "";
 	if ($c != -1)
-		$t = "\"".$categs[$c]['name']."\" Category of ";
+		$t = "\"".$categs[$c]['name']."\" 的目录 ";
 	else if ($s != -1)
-		$t = "\"".$stories[$s]['name']."\" Story of ";
+		$t = "\"".$stories[$s]['name']."\" 的故事 ";
 	write_headers($t.$basis['pgname']);
 	write_top();
 ?>
 	<div id="sidecol">
-		<div id="sidecolinner">
-			<?php
-				if ($c != -1) {
-					if ((strlen($categs[$c]['pass']) > 0) && (checkThePass('c', $c)))
-						write_actions('categs', 'c', $c);
-				} else if ($s != -1) {
-					if ((strlen($stories[$s]['pass']) > 0) && (checkThePass('s', $s)))
-						write_actions('stories', 's', $s);
-				}
-				if (showOnSideBar("checkcateg"))
-					write_conts('categs', 'Categories');
-				if (showOnSideBar("checkstory"))
-					write_conts('stories', 'Stories');
-			?>
+		<div id="sidecolinner" class="panelWapper"><div class="panel">
+<?php
+	if ($c != -1) {
+		if ((strlen($categs[$c]['pass']) > 0) && (checkThePass('c', $c)))
+			write_actions('categs', 'c', $c);
+	} else if ($s != -1) {
+		if ((strlen($stories[$s]['pass']) > 0) && (checkThePass('s', $s)))
+			write_actions('stories', 's', $s);
+	}
+	if (showOnSideBar("checkcateg"))
+		write_conts('categs', '目录');
+	if (showOnSideBar("checkstory"))
+		write_conts('stories', '故事');
+?>
 <?php
 	if (showOnSideBar("checkstate"))
 		write_stats();
@@ -757,7 +758,7 @@
 		if (strlen($basis['extra']) > 0) {
 ?>
 			<div class="part">
-			<div class="titlepart"><span class="reddot">&#149;</span>Etc</div>
+			<div class="titlepart"><span class="reddot">&#149;</span>其他</div>
 				<div class="submenu">
 					<?php echo $basis['extra']; ?>
 				</div>
@@ -768,11 +769,11 @@
 
 	write_credits();
 ?>
-		</div>
-	</div>
+		</div></div><!-- end sidecolinner -->
+	</div><!--  end sidecol-->
 	<div id="maincol">
-		<div id="maincolinner">
-		<?php
+		<div id="maincolinner" class="panelWapper"><div class="panel">
+<?php
 			if ($c != -1)
 				write_container("c");
 			else if ($s != -1)
@@ -784,12 +785,13 @@
 				foreach ($tok as $t)
 					modeInMainCol($t);
 			}
-		}
 		?>
-		</div>
-	</div>
-	</div>
-</div></center> <!-- Granny -->
+		</div></div><!-- end maincolinner -->
+	</div><!-- end maincol -->
+<?php
+	}
+?>
+</div><!-- Granny -->
 <?php
 	$time_end = getmicrotime();
 	write_footer();

@@ -45,7 +45,7 @@ define("DEFAULT_COPYRIGHT", "&lt;a href=&quot;.&quot;&gt;This PhotoGallery&lt;/a
 							."Unless stated otherwise, all photos are taken, edited, and copyright by \$email.\n"
 							."Copying or otherwise using these photos requires the permission of author.");
 
-define("THUMB_NOT_FOUND", "<div class=\"thumb_not_found\" /><br />Thumbnail Not Found!</div>");
+define("THUMB_NOT_FOUND", "<div class=\"thumb_not_found\" /><br />没发现缩略图！</div>");
 
 function GetLastPhormerVersion() {
 	if (DEBUG_MODE && strpos($_SERVER['SERVER_NAME'], "localhost") !== FALSE) {
@@ -144,15 +144,15 @@ function modeInMainCol($s) {
 	else if (strcmp($s, 'all') == 0)
 		write_lastPhotos();
 	else if (strcmp($s, 'rate') == 0)
-		write_belowIndex("below_GetRate", "Top Rated");
+		write_belowIndex("below_GetRate", "评分最高");
 	else if (strcmp($s, 'hits') == 0)
-		write_belowIndex("below_GetHits", "Most Visited");
+		write_belowIndex("below_GetHits", "最多浏览");
 	else if (strcmp($s, 'recent') == 0)
-		write_belowIndex("below_GetRecency", "Recently Visited");
+		write_belowIndex("below_GetRecency", "最近浏览");
 	else if (strcmp($s, 'random') == 0)
-		write_belowIndex("retThis", "Random");
+		write_belowIndex("retThis", "随机");
 	else if (strcmp($s, 'comment') == 0)
-		write_belowIndex("retThis", "Recently Commented");
+		write_belowIndex("retThis", "最近评论");
 }
 
 
@@ -232,7 +232,7 @@ function textDirectionEn($txt){
 		$l = $txt[$i];
 		$en &= ctype_lower($l) || ctype_upper($l) || ctype_punct($l) || ctype_digit($l) ||
 			   ctype_space($l) || (strpos("/\\!@#$%^&*(){}[];\"'", $l) != FALSE ||
-			   strpos("��������������������������������������������������������", $l) != FALSE ); #'
+			   strpos("\xFF\xFE\xFD\xFC\xFB\xFA\xF9\xF6\xF5\xF4\xF3\xF2\xF1\xF0\xEF\xED\xEE\xEC\xEB\xEA\xE9\xE8\xE7\xE6\xE5\xE4\xE3\xE2\xE1\xE0\xDD\xDC\xDB\xDA\xD9\xD6\xD5\xD4\xD3\xD2\xD1\xCF\xCE\xCD\xCC\xCB\xCA\xC9\xC7\xC8\xC6\xC5\xC4\xC3\xC2\xC1", $l) != FALSE ); #'
 	}
 	return $en;
 }
@@ -243,7 +243,7 @@ function thumbBox($pid, $a_info = "", $force = false, $isInAdmin = false, $targ=
 	$xmlName = getXMLFileName($pid);
 	if (!file_exists($xmlName)) {
 		echo "\t\t<div class=\"thumb_not_found\" style=\"border-width: 0px;\">\n";
-		echo "\t\t\tFile $xmlName Does Not exist! \n";
+		echo "\t\t\t文件 $xmlName 不存在噻！\n";
 		echo "\t\t</div><br />\n";
 		return;
 	}
@@ -309,15 +309,15 @@ function thumbBox($pid, $a_info = "", $force = false, $isInAdmin = false, $targ=
 	if (!file_exists($imgFile) && $hasgd)
 		echo "\t\t\t\t\t".THUMB_NOT_FOUND."\n";
 	else
-		echo "\t\t\t\t\t<img src=\"$imgFile\" height=\"75px\" width=\"75px\" /><br />\n";
-	echo "\t\t\t\t\t<div class=\"thumbNameLine\">"
-		.($isInAdmin?"<span style=\"padding-left: 5px;\" class=\"dot\">&#149;</span>":"")
-		.$theName."</div>\n";
-	if (!$isInAdmin)
-		echo "\t\t\t\t\t<div class=\"thumbDate\">$mtime</div>\n";
+		echo "\t\t\t\t\t<img src=\"$imgFile\" height=\"75px\" width=\"75px\" alt=\"\" /><br />\n";
 	echo "\t\t\t\t</a>\n";
+	echo "\t\t\t\t\t<div class=\"thumbNameLine\"><span>"
+		.($isInAdmin?"<span style=\"padding-left: 5px;\" class=\"dot\">&#149;</span>":"")
+		.$theName."</span></div>\n";
+	if (!$isInAdmin)
+		echo "\t\t\t\t\t<div class=\"thumbDate\"><span>$mtime</span></div>\n";
 	echo "\t\t\t</center>\n";
-	echo "\t\t</div>\n";
+	echo "\t\t</div><!-- end aThumb-->\n";
 	return true;
 }
 
@@ -1075,21 +1075,20 @@ function write_footer() {
 		$basis['copyright'] = DEFAULT_COPYRIGHT;
 ?>
 	<div style="clear:both;"></div>
-	<div style="width: 100%;">
-		<div class="footer">
-			<?php
-				$copyright = strtr($basis['copyright'], $transtable);
-				$name = $basis['auname'];
-				$email = get_email_link();
-				$Phormer = "<a href=\"http://p.horm.org/er\">Phormer, version ".PHORMER_VERSION."</a>";
+	<div class="footer panelWapper"><div class="panel">
+		<?php
+			$themeby = "<a href=\"http://ggsddu.org/\" target=\"_blank\">ggsddu.org</a>";
+			$copyright = strtr($basis['copyright'], $transtable);
+			$name = $basis['auname'];
+			$email = get_email_link();
+			$Phormer = "<a href=\"http://p.horm.org/er\">Phormer, version ".PHORMER_VERSION."</a>, and designed by $themeby";
 
-				$copyright = str_replace(array('$name', '$email', '$Phormer'),
-										 array( $name ,  $email ,  $Phormer),
-										 $copyright);
-				echo nl2br($copyright);
-			?>
-		</div>
-	</div>
+			$copyright = str_replace(array('$name', '$email', '$Phormer'),
+									 array( $name ,  $email ,  $Phormer),
+									 $copyright);
+			echo nl2br($copyright);
+		?>
+	</div></div><!-- end footer -->
 <?php
 }
 
@@ -1102,15 +1101,15 @@ function write_headers($title) {
 		$theme = "css.php?theme=$theme";
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-	<html>
+<html xmlns="http://www.w3.org/1999/xhtml">
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 		<meta http-equiv="Content-Language" content="en-us" />
 		<link rel="stylesheet" type="text/css" href="<?php echo $theme; ?>" />
 		<link rel="alternate" type="application/rss+xml" title="RSS" href="index.xml" />
-		<script language="javascript" type="text/javascript" src="files/phorm.js"></script>
-		<script lanugage="javascript" type="text/javascript">
-			var DarkenVal = <?php echo $basis['opac']; ?>
+		<script type="text/javascript" src="files/phorm.js"></script>
+		<script type="text/javascript">
+			var DarkenVal = <?php echo $basis['opac']; ?>;
 		</script>
 <?php
 	if (isset($basis['icon']) && strlen($basis['icon'])) {
@@ -1127,14 +1126,11 @@ function write_headers($title) {
 function write_top() {
 	global $basis;
 ?>
-	<div class="topPhorm">
-		<span class="headerDot">&#149;&nbsp;</span>
-		<a href="."><?php echo $basis['pgname']; ?></a>
-		<div class="topPhormAbout">
-			<?php echo nl2br($basis['pgdesc']); ?>
-		</div>
-	</div>
-	<center><div id="Granny">
+	<div class="topPhorm panelWapper"><div class="panel">
+		<span class="topPhormLogo"><a href="."><?php echo $basis['pgname']; ?></a></span>
+		<span class="topPhormAbout"><?php echo nl2br($basis['pgdesc']); ?></span>
+	</div></div>
+	<div id="Granny">
 <?php
 }
 
@@ -1232,7 +1228,7 @@ function write_conts($contarr, $contName) {
 		<div class="titlepart">
 			<span class="reddot">&#149;</span>
 <?php
-	echo "<a href=\".".((strcasecmp($contName, "stories") == 0)?"?mode=stories":"")."\">"
+	echo "\t\t\t<a href=\".".((strcasecmp($contName, "stories") == 0)?"?mode=stories":"")."\">"
 			.$contName
 		."</a>"
 		."</div>\n";
@@ -1254,7 +1250,7 @@ function write_credits() {
 global $basis, $comments;
 ?>
 	<div class="part">
-		<div class="titlepart"><span class="reddot">&#149;</span>Etc</div>
+		<div class="titlepart"><span class="reddot">&#149;</span>其他</div>
 		<div class="submenu">
 <?php
 	global $basis;
@@ -1281,17 +1277,18 @@ global $basis, $comments;
 			$notseen = " (".($lastcmnt - $basis['lastcmntseen']).")";
 ?>
 			<div class="item"><span class="dot">&#149;</span>&nbsp;<a href="admin.php"
-				title="Login to the Administration Region">Admin Page <?php echo $notseen; ?></a></div>
+				title="Login to the Administration Region">管理页面<?php echo $notseen; ?></a></div>
 <?php
 	}
 ?>
 		</div>
+		<!--
 		<br />
 		<div class="titlepart"><span class="reddot">&#149;</span>Powered by</div>
 		<div class="submenu">
 			<div class="item"><span class="dot">&#149;</span>&nbsp;<a href="http://p.horm.org/er" title="Rephorm Your Phormer Pharm!">Phormer <?php echo PHORMER_VERSION; ?></a></div>
 		</div>
-
+		-->
 	</div>
 <?php
 }
@@ -1390,7 +1387,7 @@ function write_stats() {
 	$pid = key($photos);
 	reset($photos);
 
-	$lastUpdate = "Never before";
+	$lastUpdate = "没有";
 	if (photo_exists($pid)) {
 		$d = getPhotoInfo($pid, "dateadd");
 		$dates = sscanf($d, "%d/%d/%d %d:%d");
@@ -1401,24 +1398,20 @@ function write_stats() {
 	}
 ?>
 			<div class="part">
-			<div class="titlepart"><span class="reddot">&#149;</span>Statistics</div>
+				<div class="titlepart"><span class="reddot">&#149;</span>状态统计</div>
 				<div class="submenu">
 <?php if (showOnSideBar("checkstory")) { ?>
-					<div class="item"><span class="dot">&#149;</span> Stories: <?php echo count($stories)-1; ?></div>
+					<div class="item"><span class="dot">&#149;</span> 标签: <?php echo count($stories)-1; ?></div>
 <?php } ?>
-					<div class="item"><span class="dot">&#149;</span> Photos: <?php echo count($photos)-1; ?></div>
-					<div class="item" style="line-height: 130%"><span class="dot">&#149;</span> Last Update: <br />
-							&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <?php echo $lastUpdate; ?></div>
-					<br />
-					<div class="item"><span class="dot">&#149;</span> Visitors Online: <?php echo count($visits['online']); ?> </div>
-					<div class="item"><span class="dot">&#149;</span> Today Hits: <?php echo visitsToday(); ?> </div>
+					<div class="item"><span class="dot">&#149;</span> 图片: <?php echo count($photos)-1; ?></div>
+					<div class="item" style="line-height: 130%"><span class="dot">&#149;</span> 最近更新: <?php echo $lastUpdate; ?></div>
+					<div class="item"><span class="dot">&#149;</span> 在线用户: <?php echo count($visits['online']); ?> </div>
+					<div class="item"><span class="dot">&#149;</span> 今日点击: <?php echo visitsToday(); ?> </div>
 <?php if (strlen($t = visitsYesterday())) { ?>
-					<div class="item"><span class="dot">&#149;</span> Yesteday's: <?php echo $t; ?> </div>
+					<div class="item"><span class="dot">&#149;</span> 昨日点击: <?php echo $t; ?> </div>
 <?php } ?>
-					<div class="item"><span class="dot">&#149;</span> This Month: <?php echo visitsThisMonth(); ?> </div>
-					<div class="item" style="line-height: 130%"><span class="dot">&#149;</span> Photo Hits:
-							<!-- <br /> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; -->
-							<?php echo number_format(visitsTotal()); ?></div>
+					<div class="item"><span class="dot">&#149;</span> 本月点击: <?php echo visitsThisMonth(); ?> </div>
+					<div class="item" style="line-height: 130%"><span class="dot">&#149;</span> 图片点击: <?php echo number_format(visitsTotal()); ?></div>
 				</div>
 			</div>
 <?php
@@ -1446,15 +1439,16 @@ function writeNextz($p) {
 	$photo = getAllPhotoInfo($p, "./");
 ?>
 	<div class="navigation">
-		<div class="title"><span class="darkdot">&#149; </span>Prev.</div>
+	<div class="navPrev">
+		<div class="title"><span class="darkdot">&#149; </span>前一张</div>
 			<?php thumbBox($prev, "", false, false, "_self"); ?>
 		<div class="bottitle">&nbsp;</div>
 	</div>
 
-	<div class="navigation">
+	<div class="navNeighbor">
 		<div class="title" style="text-align: center">
 			<span class="darkdot">&#149;</span>
-			Random Neighbours
+			附近图片
 			<span class="darkdot">&#149;</span>
 		</div>
 <?php
@@ -1476,7 +1470,7 @@ function writeNextz($p) {
 	$targ = "_self";
 	if (isset($basis['linktarget']) && strcmp("_blank", $basis['linktarget']) == 0)
 		$targ = "_blank";
-	for ($i=0; $i<4; $i++) {
+	for ($i=0; $i<6; $i++) {
 		$rp = rand(0, $nc-1);
 		while (!canthumb($arr[$rp]))
 			$rp = ($rp+1)%$nc;
@@ -1495,11 +1489,12 @@ function writeNextz($p) {
 		<div class="bottitle">&nbsp;</div>
 	</div>
 
-	<div class="navigation">
-		<div class="title" style="text-align: right">Next<span class="darkdot"> &#149;</span></div>
+	<div class="navNext">
+		<div class="title" style="text-align: right">后一张<span class="darkdot"> &#149;</span></div>
 			<?php thumbBox($next, "", false, false, "_self"); ?>
 		<div class="bottitle">&nbsp;</div>
 	</div>
+	</div><!-- end navigation -->
 	<div class="divClear"></div>
 <?php
 }
@@ -1619,13 +1614,13 @@ function writeCommenting($t, $c) {
 	<div class="Commenting">
 		<div class="title" style="width: 100%">
 			<span class="leaveReply" style="padding-right: 5px; letter-spacing :0px;">
-				[<a href="#hide" onclick="toggle('allComments', 'contractComments', this);"> Hide all </a> ]
+				[<a href="#hide" onclick="toggle('allComments', 'contractComments', this);"> 全部隐藏 </a> ]
 			</span>
 			<span class="reddot" style="font-size: 14px">&#149;</span>
-			<a href="#Commenting">Comments on this <?php echo $cname; ?></a>
+			<a href="#Commenting">关于<?php echo $cname; ?>的评论</a>
 		</div>
 		<div id="contractComments" class="bcell" style="display: none; text-align: center">
-			&#133; Comments Contracted &#133;
+			&#133; 评论隐藏 &#133;
 		</div>
 		<div id ="allComments" style="display: block;">
 <?php
@@ -1647,22 +1642,22 @@ function writeCommenting($t, $c) {
 		if ($val['reply'] == 0)
 			writeRecursiveCommenting($t, $c, $r, $key, 0);
 	if (count($r) == 0)
-		echo "<div class=\"bcell\">No Comment yet.</div>\n";
+		echo "\t\t\t<div class=\"bcell\">还没有评论。</div>\n";
 ?>
 		</div>
 		<div class="bottitle">&nbsp;</div>
 		<a name="leaveComment"></a>
-		<div class="title"><span class="reddot">&#149;</span><a href="?<?php echo "$t=$c"; ?>"> Leave your own comment</a></div>
+		<div class="title"><span class="reddot">&#149;</span><a href="?<?php echo "$t=$c"; ?>"> 留下点只言片语吧</a></div>
 		<div class="bcell">
 			<form action="<?php echo ".?$t=$c#cmnts"; ?>" method="post"<?php if (!$isAdmin) echo ' onsubmit="return checkWV();"'; ?>>
-			<table cellspacing="2" cellpadding="2" width="60%">
+			<table cellspacing="2" cellpadding="2" width="80%">
 <?php if ($isAdmin)	{  ?>
 			<tr><td width="40%">
 				<label for="ComIsAdminYe"><input id="ComIsAdminYe" type="radio" class="radio" name="byadmin" value="yes" checked="checked"
-					   onclick="javascript:hideElem('ComNameTR');hideElem('ComEmailTR');hideElem('ComWebTR');hideElem('ComWVTR');">As Admin</input></label>
+					   onclick="javascript:hideElem('ComNameTR');hideElem('ComEmailTR');hideElem('ComWebTR');hideElem('ComWVTR');">管理员身份</input></label>
 			</td><td width="60%">
 				<label for="ComIsAdminNo"><input id="ComIsAdminNo" type="radio" class="radio" name="byadmin" value="no"
-					   onclick="javascript:tableRowElem('ComNameTR');tableRowElem('ComEmailTR');tableRowElem('ComWebTR');tableRowElem('ComWVTR');">As Other</input></label>
+					   onclick="javascript:tableRowElem('ComNameTR');tableRowElem('ComEmailTR');tableRowElem('ComWebTR');tableRowElem('ComWVTR');">普通用户</input></label>
 			</td></tr>
 <?php }
 	$defDisp = " style=\"display: ".($isAdmin?"none":"table-row")." ;\"";
@@ -1676,16 +1671,16 @@ function writeCommenting($t, $c) {
 	}
 ?>
 					<tr id="ComNameTR" <?php echo $defDisp; ?>>
-						<td width="40%">  Name:   </td>
-						<td width="60%"><input type="text" size="20" name="name" value="<?php echo $defname; ?>"></td>
+						<td width="30%"> 姓名: </td>
+						<td width="70%"><input type="text" size="40" name="name" value="<?php echo $defname; ?>"/></td>
 					</tr>
 					<tr id="ComEmailTR" <?php echo $defDisp; ?>>
-						<td>  Email:  </td>
-						<td><input type="text" size="20" name="email" value="<?php echo $defemail; ?>"></td>
+						<td> Email:  </td>
+						<td><input type="text" size="40" name="email" value="<?php echo $defemail; ?>"/></td>
 					</tr>
 					<tr id="ComWebTR" <?php echo $defDisp; ?>>
-						<td>  Webpage:</td>
-						<td><input type="text" size="20" name="url" value="<?php echo $defurl; ?>"></td>
+						<td> 主页: </td>
+						<td><input type="text" size="40" name="url" value="<?php echo $defurl; ?>"/></td>
 					</tr>
 <?php
 	if (!$isAdmin && hasWV()) {
@@ -1695,15 +1690,13 @@ function writeCommenting($t, $c) {
 					save_container('basis', 'Basis', 'data/basis.xml');
 ?>
 					<tr id="ComWVTR" <?php echo $defDisp; ?>>
-						<td valign="bottom">
-							Word verification:
-						</td>
+						<td valign="bottom"> 确认码: </td>
 						<td>
 							<script language="javascript" type="text/javascript">
 								md5 = "<?php echo md5($basis['wvw']); ?>";
 							</script>
-							<input id="wvinput" type="text" size="10" name="wvw" autocomplete="off">
-							<img id="wvwimg" src="wv.php?rand=<?php echo rand(1, 1000000000); ?>" style="position: relative; top: 4px;" />
+							<input id="wvinput" type="text" size="20" name="wvw"/>
+							<img id="wvwimg" src="wv.php?rand=<?php echo rand(1, 1000000000); ?>" style="position: relative; top: 4px;" alt=""/>
 						</td>
 					</tr>
 <?php
@@ -1712,30 +1705,30 @@ function writeCommenting($t, $c) {
 									   && (strlen($alert_msg) > 0);
 ?>
 					<tr id="ComReplyTR"<?php echo $showRep?"":" style=\"display: none;\""; ?>>
-						<td>  Reply to Comment: </td>
+						<td>  评论: </td>
 						<td>
 							<span class="leaveReply" style="padding-right: 5px">
 								[<a href="#" id="viewComment"> View That </a>] &nbsp;
 								[<a href="#leaveComment" onclick="javascript:doReply('0');"> New Thread </a>]
 							</span>
-							<input id="cmntReply" type="text" size="4" name="reply" value="<?php echo $defreply; ?>">
+							<input id="cmntReply" type="text" size="4" name="reply" value="<?php echo $defreply; ?>"/>
 						</td>
 					</tr>
 
 					<tr><td colspan="2">
-						<textarea id="cmntTextArea" rows="6" cols="40" type="text" name="txt"><?php
+						<textarea id="cmntTextArea" rows="6" cols="60" name="txt"><?php
 							if (strlen($alert_msg) && isset($_POST['txt'])) echo $_POST['txt'];
 						?></textarea>
 					</td></tr>
 					<tr><td colspan="2" style="text-align: center">
-						<input type="hidden" name="cmd" value="addcmnt<?php echo $t; ?>"></input>
-						<input type="submit" value=" &nbsp; Submit Comment &nbsp; "></input>
+						<input type="hidden" name="cmd" value="addcmnt<?php echo $t; ?>"/>
+						<input type="submit" value=" &nbsp; 提交评论 &nbsp; "/>
 					</td></tr>
 			</table>
 			</form>
 		</div>
 		<div class="bottitle">&nbsp;</div>
-	</div>
+	</div><!-- end Commenting -->
 	</center>
 <?php
 }
@@ -1797,15 +1790,15 @@ function write_container($clet) {
 		if ($ns > 0)
 			$ss_and .= "&ns=$ns";
 ?>
-	<div class="partmain" id="slideShow">
+	<div class="partmain" id="slideShow"><!-- qiguai -->
 		<div class="titlepart">
 			<span class="leaveReply">
-				[ <a href=".?feat=slideshow&<?php echo $ss_and; ?>">SlideShow</a> ]
+				[ <a href=".?feat=slideshow&<?php echo $ss_and; ?>">幻灯片</a> ]
 			</span>
 			<?php
 				if ($isAdmin)
 					echo "\t\t\t\t<span class=\"pvTitleInfo\" style=\"position: relative; top: -8px;\">["
-						."<a href=\"admin.php?page=$contPage&cmd=doEdt&$cidid=$cid#add\">Edit</a>]</span>\n";
+						."<a href=\"admin.php?page=$contPage&cmd=doEdt&$cidid=$cid#add\">编辑</a>]</span>\n";
 			?>
 			<span class="reddot">&#149;</span>
 			<?php
@@ -1825,7 +1818,7 @@ function write_container($clet) {
 					echo "\t\t\t&nbsp;[<a href=\".?$clet=$cid&n=".$thumbCntArr[$i]."\">".$thumbCntArr[$i]."</a>]\n";
 			?>
 			</span>
-		</div>
+		</div><!-- end titlepart -->
 		<?php if (strlen($cont['desc'])) { ?>
 		<div class="midInfo">
 			<?php
@@ -1840,9 +1833,9 @@ function write_container($clet) {
 	$np = count($cont['photo']);
 
 	if ($ns != 0)
-		echo "<span class=\"titlepartlinkL\">[ <a href=\".?$clet=$cid&ns=".max(0, $ns-$n).($n == DEFAULT_N?"":"&n=$n")."\">Previous Photos</a> ]<br />&nbsp;</span>";
+		echo "\t\t\t<span class=\"titlepartlinkL\">[ <a href=\".?$clet=$cid&ns=".max(0, $ns-$n).($n == DEFAULT_N?"":"&n=$n")."\">Previous Photos</a> ]<br />&nbsp;</span>";
 	if ($ns+$n<=$np)
-		echo "<span class=\"titlepartlinkR\">[ <a href=\".?$clet=$cid&ns=".($ns+$n).($n == DEFAULT_N?"":"&n=$n")."\">Next Photos</a> ]<br />&nbsp;</span>";
+		echo "\t\t\t<span class=\"titlepartlinkR\">[ <a href=\".?$clet=$cid&ns=".($ns+$n).($n == DEFAULT_N?"":"&n=$n")."\">Next Photos</a> ]<br />&nbsp;</span>";
 ?>
 		</div>
 		<div class="submenu">
@@ -1868,13 +1861,13 @@ function write_container($clet) {
 				prev($cont['photo']);
 			}
 		?>
-		</div>
+		</div><!-- end submenu -->
 		<div class="end">
 <?php
 	if ($ns != 0)
-		echo "<span class=\"titlepartlinkL\">[ <a href=\".?$clet=$cid&ns=".max(0, $ns-$n).($n == DEFAULT_N?"":"&n=$n")."\">Previous Photos</a> ]<br />&nbsp;</span>";
+		echo "\t\t\t<span class=\"titlepartlinkL\">[ <a href=\".?$clet=$cid&ns=".max(0, $ns-$n).($n == DEFAULT_N?"":"&n=$n")."\">Previous Photos</a> ]<br />&nbsp;</span>";
 	if ($ns+$n<=$np)
-		echo "<span class=\"titlepartlinkR\">[ <a href=\".?$clet=$cid&ns=".($ns+$n).($n == DEFAULT_N?"":"&n=$n")."\">Next Photos</a> ]<br />&nbsp;</span>";
+		echo "\t\t\t<span class=\"titlepartlinkR\">[ <a href=\".?$clet=$cid&ns=".($ns+$n).($n == DEFAULT_N?"":"&n=$n")."\">Next Photos</a> ]<br />&nbsp;</span>";
 ?>
 		</div>
 <?php
@@ -1912,7 +1905,7 @@ function dropthebox($pid, $x) {
 			<img src="<?php echo $imgFile; ?>" /><br />
 		</a>
 	</center>
-	</div>
+	</div><!-- end aThumbInBox -->
 <?php
 }
 
@@ -1952,7 +1945,7 @@ function write_boxPhotos() {
 			</div>
 		</div>
 		<div class="end"></div>
-	</div>
+	</div><!-- end partmain -->
 <?php
 }
 
@@ -2037,9 +2030,9 @@ function write_lastStories() {
 		<div class="end">
 <?php
 		if ($rss != 0)
-			echo "<span class=\"titlepartlinkL\">[ <a href=\".?mode=stories&rss=".max(0, $rss-$rsn).($rsn == $basis['defrsc']?"":"&rsn=$rsn")."\">Previous Recent Stories</a> ]<br />&nbsp;</span>";
+			echo "\t\t\t<span class=\"titlepartlinkL\">[ <a href=\".?mode=stories&rss=".max(0, $rss-$rsn).($rsn == $basis['defrsc']?"":"&rsn=$rsn")."\">Previous Recent Stories</a> ]<br />&nbsp;</span>";
 		if ($rss+$rsn<$nstories)
-			echo "<span class=\"titlepartlinkR\">[ <a href=\".?mode=stories&rss=".($rss+$rsn).($rsn == $basis['defrsc']?"":"&rsn=$rsn")."\">Next Recent Stories</a> ]<br />&nbsp;</span>";
+			echo "\t\t\t<span class=\"titlepartlinkR\">[ <a href=\".?mode=stories&rss=".($rss+$rsn).($rsn == $basis['defrsc']?"":"&rsn=$rsn")."\">Next Recent Stories</a> ]<br />&nbsp;</span>";
 ?>
 		</div>
 	</div>
@@ -2078,14 +2071,14 @@ function write_belowIndex($func, $obj_name) {
 	global $rps, $rpn, $trn, $trs, $rsn, $rss;
 	global $photos, $nphotos, $basis, $stories, $comments;
 
-	$isRecent  = (strcmp($obj_name, "Recently Visited") == 0);
-	$isRandom  = (strcmp($obj_name, "Random") == 0);
-	$isComment = (strcmp($obj_name, "Recently Commented") == 0);
+	$isRecent  = (strcmp($obj_name, "最近浏览") == 0);
+	$isRandom  = (strcmp($obj_name, "随机") == 0);
+	$isComment = (strcmp($obj_name, "最近评论") == 0);
 ?>
 	<div class="partmain">
 		<div class="titlepart">
 			<a name="tr"></a>
-			<span class="reddot">&#149;</span><?php echo (($isRecent||$isComment)?"":"Random ").$obj_name; ?> Photos
+			<span class="reddot">&#149;</span><?php echo (($isRecent||$isComment)?"":"随机 ").$obj_name; ?>图片
 			<span class="thumbcntarr">
 			<?php
 				global $thumbCntArr;
@@ -2095,7 +2088,7 @@ function write_belowIndex($func, $obj_name) {
 					."</a>]\n"
 			?>
 			</span>
-		</div>
+		</div><!-- end titlepart -->
 		<div class="submenu">
 <?php
 			global $tphoto;
@@ -2155,21 +2148,21 @@ function write_belowIndex($func, $obj_name) {
 				}
 
 ?>
-		</div>
+		</div><!-- end submenu -->
 		<div class="end">
 <?php
 		if ($trs != 0 && !$isRandom)
-			echo "<span class=\"titlepartlinkL\">[ <a href=\".?trs=".max(0, $trs-$trn).
-				($trn == $basis['deftrc']?"":"&trn=$trn")."#tr\">Previous $obj_name Photos</a> ]<br />&nbsp;</span>";
+			echo "\t\t\t<span class=\"titlepartlinkL\">[ <a href=\".?trs=".max(0, $trs-$trn).
+				($trn == $basis['deftrc']?"":"&trn=$trn")."#tr\">上一页 {$obj_name}图片</a> ]<br />&nbsp;</span>";
 		if (isset($r[$trs+$trn])) {
-			$nextWord = $isRandom?"Other":"Next";
-			echo "<span class=\"titlepartlinkR\">[ <a href=\".?trs=".($trs+$trn).
-				($trn == $basis['deftrc']?"":"&trn=$trn")."#tr\">$nextWord $obj_name Photos</a> ]<br />&nbsp;</span>";
+			$nextWord = $isRandom?"其他":"下一页";
+			echo "\t\t\t<span class=\"titlepartlinkR\">[ <a href=\".?trs=".($trs+$trn).
+				($trn == $basis['deftrc']?"":"&trn=$trn")."#tr\">$nextWord {$obj_name}图片</a> ]<br />&nbsp;</span>";
 		}
 		unset($r);
 ?>
 		</div>
-	</div>
+	</div><!-- end partmain -->
 
 <?php
 }
@@ -2205,7 +2198,7 @@ function write_firstPhoto() {
 	<div class="partmain">
 		<div class="titlepart">
 			<span class="leaveReply">
-				[ <a href=".?feat=slideshow">SlideShow</a> ]
+				[ <a href=".?feat=slideshow">幻灯片</a> ]
 			</span>
 			<span class="reddot">&#149;</span>Last Photo:
 			<a href=".?p=<?php echo $pid; ?>"><?php echo $photo['name']; ?></a>
@@ -2238,20 +2231,20 @@ function write_lastPhotos() {
 	<div class="partmain">
 		<div class="titlepart">
 			<span class="leaveReply">
-				[ <a href=".?feat=slideshow">SlideShow</a> ]
+				[ <a href=".?feat=slideshow">幻灯片</a> ]
 			</span>
 
-			<span class="reddot">&#149;</span>Recently Added Photos
+			<span class="reddot">&#149;</span>最新添加图片
 			<span class="thumbcntarr">
-			<?php
+<?php
 				global $thumbCntArr;
 				for($i=0; $i<count($thumbCntArr); $i++)
-					echo "\t\t\t&nbsp;[<a href=\".?rpn=".$thumbCntArr[$i].($rps == 0?"":"&rps=$rps")."\">".$thumbCntArr[$i]."</a>]\n"
+					echo "\t\t\t\t&nbsp;[<a href=\".?rpn=".$thumbCntArr[$i].($rps == 0?"":"&rps=$rps")."\">".$thumbCntArr[$i]."</a>]\n"
 			?>
 			</span>
 		</div>
 		<div class="submenu">
-		<?php
+<?php
 			end($photos);
 			$rpn = min($rpn, $nphotos);
 			for ($i=0; $i<$rps; $i++)
@@ -2263,16 +2256,16 @@ function write_lastPhotos() {
 				prev($photos);
 			}
 		?>
-		</div>
+		</div><!-- end submenu -->
 		<div class="end">
 <?php
 		if ($rps != 0)
-			echo "<span class=\"titlepartlinkL\">[ <a href=\".?rps=".max(0, $rps-$rpn).($rpn == $basis['defrpc']?"":"&rpn=$rpn")."\">Previous Recent Photos</a> ]<br />&nbsp;</span>";
+			echo "\t\t\t<span class=\"titlepartlinkL\">[ <a href=\".?rps=".max(0, $rps-$rpn).($rpn == $basis['defrpc']?"":"&rpn=$rpn")."\">上一页</a> ]<br />&nbsp;</span>";
 		if ($rps+$rpn<$nphotos)
-			echo "<span class=\"titlepartlinkR\">[ <a href=\".?rps=".($rps+$rpn).($rpn == $basis['defrpc']?"":"&rpn=$rpn")."\">Next Recent Photos</a> ]<br />&nbsp;</span>";
+			echo "\t\t\t<span class=\"titlepartlinkR\">[ <a href=\".?rps=".($rps+$rpn).($rpn == $basis['defrpc']?"":"&rpn=$rpn")."\">下一页</a> ]<br />&nbsp;</span>";
 ?>
 		</div>
-
+	</div><!-- end partmain -->
 <?php
 }
 
@@ -2317,12 +2310,12 @@ function textdate($d) {
 	$udate = mktime(0, 0, 0, $dates[1], $dates[2], $dates[0]);
 	$dayspast = round(($utoday-$udate)/(24*60*60));
 	switch ($dayspast) {
-		case 0: return 'Today';
-		case 1: return 'Yesterday';
+		case 0: return '今天';
+		case 1: return '昨天';
 		case 2: case 3: case 4: case 5: case 6:
-			return $dayspast." days ago";
+			return $dayspast."天前";
 		case 7 :
-			return "one week ago";
+			return "一周前";
 		default:
 			return date("F jS \o\f y", $udate);
 	}
@@ -2330,25 +2323,25 @@ function textdate($d) {
 
 function numSuffSFromat($d, $s) {
 	if ($d == 1)
-		return "one $s ago"; // or "last $s"!
+		return "1{$s}前"; // or "last $s"!
 	else
-		return "$d {$s}s ago";
+		return "{$d}{$s}前";
 }
 
 function SecsToText($d) {
 	if ($d < 60)
-		$ret = numSuffSFromat(round($d), "second");
+		$ret = numSuffSFromat(round($d), "秒钟");
 	else if ($d < 60*60)
-		$ret = numSuffSFromat(round($d/60), "minute");
+		$ret = numSuffSFromat(round($d/60), "分钟");
 	else if ($d < 24*60*60)
-		$ret = numSuffSFromat(round($d/(60*60)), "hour");
+		$ret = numSuffSFromat(round($d/(60*60)), "小时");
 	else if ($d < 30*24*60*60)
-		$ret = numSuffSFromat(round($d/(24*60*60)), "day");
+		$ret = numSuffSFromat(round($d/(24*60*60)), "天");
 	else
-		$ret = numSuffSFromat(round($d/(30*24*60*90)), "month");
+		$ret = numSuffSFromat(round($d/(30*24*60*90)), "月");
 
 	if (strcmp($ret, "last day") == 0)
-		$ret = "yesterday";
+		$ret = "昨天";
 
 	return $ret;
 }
